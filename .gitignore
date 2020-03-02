@@ -1,5 +1,6 @@
 node_modules/
 vendor/
 
-reports/
-!reports/*/
+k6/reports/*
+!k6/reports/js*
+!k6/reports/php*
