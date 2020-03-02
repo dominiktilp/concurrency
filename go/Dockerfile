@@ -1,15 +1,22 @@
-FROM golang:alpine
+FROM golang:1.14.0-stretch
 
-WORKDIR /var/www/go
+RUN \
+  apt-get update \
+  && apt-get -y install git \
+  && rm -rf /var/lib/apt/lists/*
 
-COPY go.mod go.sum ./
-RUN go mod download
+WORKDIR /app
 
 COPY . .
-RUN go build -o index ./index.go
+RUN go build -o ./bin/concurrency ./cmd/*
 
 ARG PORT=8080
-ENV PORT=${PORT}
+ENV CONCURRENCY_PORT=${PORT}
 EXPOSE ${PORT}
 
-CMD ["./index"]
+ARG REPO="http://localhost:9999"
+ENV CONCURRENCY_REPO=${REPO}
+
+ENTRYPOINT ["./bin/concurrency"]
+
+CMD ["run"]
