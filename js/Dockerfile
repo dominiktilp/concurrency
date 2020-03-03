@@ -11,7 +11,7 @@ ARG PORT=8080
 ENV PORT=${PORT}
 EXPOSE ${PORT}
 
-ARG DATA_HOST=http://192.168.68.103:9999/
+ARG DATA_HOST=http://host.docker.internal:9999/
 ENV DATA_HOST=${DATA_HOST}
 
 ENTRYPOINT ["npm", "run", "start"]

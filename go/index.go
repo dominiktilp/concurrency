@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func fib(n int) int {
@@ -48,7 +49,7 @@ func main() {
 		prod := &product{}
 		wg.Add(1)
 		go func(prod *product) {
-			resp, _ := http.Get(fmt.Sprintf("%s/products/%d", dataHost, id))
+			resp, _ := http.Get(fmt.Sprintf("%sproducts/%d", dataHost, id))
 			defer resp.Body.Close()
 			body, _ := ioutil.ReadAll(resp.Body)
 			json.Unmarshal(body, &prod)
@@ -60,7 +61,7 @@ func main() {
 		}
 		wg.Add(1)
 		go func(reviewsResp *dataReviewResponse) {
-			resp, _ := http.Get(fmt.Sprintf("%s/productReviews/%d", dataHost, id))
+			resp, _ := http.Get(fmt.Sprintf("%sproductReviews/%d", dataHost, id))
 			defer resp.Body.Close()
 			body, _ := ioutil.ReadAll(resp.Body)
 			json.Unmarshal(body, &reviewsResp)
@@ -76,7 +77,7 @@ func main() {
 		id, _ := strconv.ParseInt(params.ByName("n"), 10, 64)
 
 		rcmd := &recommended{}
-		resp, _ := http.Get(fmt.Sprintf("%s/recommendedProducts/%d", dataHost, id))
+		resp, _ := http.Get(fmt.Sprintf("%srecommendedProducts/%d", dataHost, id))
 		defer resp.Body.Close()
 		body, _ := ioutil.ReadAll(resp.Body)
 		json.Unmarshal(body, &rcmd)
@@ -87,7 +88,7 @@ func main() {
 			wg.Add(1)
 			go func(id int64, prods chan *product) {
 				defer wg.Done()
-				resp, _ := http.Get(fmt.Sprintf("%s/products/%d", dataHost, id))
+				resp, _ := http.Get(fmt.Sprintf("%sproducts/%d", dataHost, id))
 				defer resp.Body.Close()
 				body, _ := ioutil.ReadAll(resp.Body)
 				prod := &product{}
@@ -101,9 +102,9 @@ func main() {
 		go func() {
 			for {
 				select {
-				case prod := <- prods:
+				case prod := <-prods:
 					products = append(products, prod)
-				case <- done:
+				case <-done:
 					break
 				}
 			}
@@ -123,19 +124,19 @@ func processResponse(w http.ResponseWriter, body interface{}) {
 }
 
 type product struct {
-	Id int64 `json:"id"`
-	Uuid string `json:"uuid"`
-	Title string `json:"title"`
-	Image string `json:"image"`
-	Color string `json:"color"`
-	Price string `json:"price"`
+	Id      int64     `json:"id"`
+	Uuid    string    `json:"uuid"`
+	Title   string    `json:"title"`
+	Image   string    `json:"image"`
+	Color   string    `json:"color"`
+	Price   string    `json:"price"`
 	Reviews []*review `json:"reviews"`
 }
 
 type review struct {
-	Id string `json:"id"`
-	User string `json:"user"`
-	Rating int8 `json:"rating"`
+	Id      string `json:"id"`
+	User    string `json:"user"`
+	Rating  int8   `json:"rating"`
 	Comment string `json:"comment"`
 }
 
@@ -144,6 +145,6 @@ type dataReviewResponse struct {
 }
 
 type recommended struct {
-	Id int64 `json:"id"`
+	Id         int64   `json:"id"`
 	ProductIds []int64 `json:"productIds"`
 }
