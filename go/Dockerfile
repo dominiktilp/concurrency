@@ -8,15 +8,13 @@ RUN \
 WORKDIR /app
 
 COPY . .
-RUN go build -o ./bin/concurrency ./cmd/*
+RUN go build -o ./bin/index ./index.go
 
 ARG PORT=8080
-ENV CONCURRENCY_PORT=${PORT}
+ENV PORT=${PORT}
 EXPOSE ${PORT}
 
-ARG REPO="http://localhost:9999"
-ENV CONCURRENCY_REPO=${REPO}
+ARG DATA_HOST="http://localhost:9999"
+ENV DATA_HOST=${DATA_HOST}
 
-ENTRYPOINT ["./bin/concurrency"]
-
-CMD ["run"]
+CMD ["./bin/index"]
