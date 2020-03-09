@@ -4,6 +4,17 @@ const app = express()
 const port = process.env.PORT
 
 
+/*
+non blocking fib
+async function fib(n) {
+  if (n <= 1) {
+    return n
+  }
+  await new Promise((resolve) => setImmediate(resolve))
+  return (await fib(n-1)) + (await fib(n-2))
+}
+*/ 
+
 function fib(n) {
   if (n <= 1) {
     return n
@@ -20,9 +31,9 @@ app.get(
 
 app.get(
   '/fib/:n',
-  (req, res) => {
+  async (req, res) => {
     const n = req.params.n
-    const fibn = fib(parseInt(n, 10) || 40)
+    const fibn = await fib(parseInt(n, 10) || 40)
     res.send(`fib(${n}) = ${fibn}`)
   }
 )
